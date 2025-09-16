@@ -19,7 +19,7 @@
  *  Identification matérielle (câblage utilisé pour les tests)
  *  --------------------------------
  *   - DEL (simple) :
- *       • PA1 → Résistance (≈220 Ω à 1 kΩ) → Anode de la DEL
+ *       • PA0 → Résistance (≈220 Ω à 1 kΩ) → Anode de la DEL
  *       • Cathode de la DEL → GND
  *   - Bouton poussoir :
  *       • PD2 relié à l’interrupteur (l’autre borne de l’interrupteur à VCC ou GND).
@@ -43,45 +43,41 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/* ===================== Constantes ===================== */
-constexpr uint8_t GreenLedMask = (1u << PA0); // LED verte sur PA0 (adapte si besoin)
-constexpr uint8_t ButtonMask = (1u << PD2);   // bouton sur PD2
-constexpr uint16_t ConfirmDelayMs = 20;       // anti-rebond simple
-constexpr uint16_t GreenHoldMs = 2000;        // LED verte allumée 2 s
+constexpr uint8_t greenLedMask = (1u << PA0);
+constexpr uint8_t buttonMask = (1u << PD2);
+constexpr uint16_t confirmDelayMs = 20;
+constexpr uint16_t greenHoldMs = 2000;
 
-/* ===================== Helpers LED ===================== */
-static inline void ledOff() { PORTA &= ~GreenLedMask; }
-static inline void ledGreen() { PORTA |= GreenLedMask; }
+static inline void ledOff() { PORTA &= ~greenLedMask; }
+static inline void ledGreen() { PORTA |= greenLedMask; }
 
-static inline void initIO()
+static inline void initIo()
 {
-    DDRA = 0xFF; // LED en sortie
-    DDRD = 0;    // bouton en entrée
+    DDRA = 0xFF;
+    DDRD = 0;
     ledOff();
 }
 
-/* ===================== États ===================== */
 enum class P1State
 {
-    INIT,
-    CountingPress, // on compte les appuis
-    LedOpen        // LED allumée 2 s, puis retour INIT
+    Init,
+    CountingPress,
+    LedOpen
 };
 
 int main()
 {
-    initIO();
-    P1State state = P1State::INIT;
+    initIo();
+    P1State state = P1State::Init;
     uint8_t pressCount = 0;
 
-    while (1)
+    while (true)
     {
-        // lecture brute (essaie avec ==0 ou !=0 selon ton câblage)
-        bool pressed = ((PIND & ButtonMask) != 0);
+        bool pressed = ((PIND & buttonMask) != 0);
 
         switch (state)
         {
-        case P1State::INIT:
+        case P1State::Init:
             ledOff();
             pressCount = 0;
             state = P1State::CountingPress;
@@ -90,12 +86,11 @@ int main()
         case P1State::CountingPress:
             if (pressed)
             {
-                _delay_ms(ConfirmDelayMs);
-                if ((PIND & ButtonMask) != 0)
-                { // encore appuyé ?
+                _delay_ms(confirmDelayMs);
+                if ((PIND & buttonMask) != 0)
+                {
                     pressCount++;
-                    // attendre le relâchement pour éviter de recompter le même appui
-                    while ((PIND & ButtonMask) != 0)
+                    while ((PIND & buttonMask) != 0)
                     {
                         _delay_ms(5);
                     }
@@ -111,17 +106,15 @@ int main()
             ledGreen();
             {
                 uint16_t elapsed = 0;
-                while (elapsed < GreenHoldMs)
+                while (elapsed < greenHoldMs)
                 {
                     _delay_ms(10);
                     elapsed += 10;
                 }
             }
             ledOff();
-            state = P1State::INIT;
+            state = P1State::Init;
             break;
         }
-
-        _delay_ms(1); // mini souffle
     }
 }

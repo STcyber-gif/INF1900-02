@@ -59,97 +59,83 @@
             +------------------------+---------+------------------------+--------+
 
  */
-
 #define F_CPU 8000000UL
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-/* ===================== Constantes ===================== */
-/* DEL bicolore : PA1 = rouge, PA0 = vert */
-constexpr uint8_t RedLedMask = (1u << PA1);
-constexpr uint8_t GreenLedMask = (1u << PA0);
-constexpr uint8_t BothLedMask = (RedLedMask | GreenLedMask);
+constexpr uint8_t redLedMask = (1u << PA1);
+constexpr uint8_t greenLedMask = (1u << PA0);
+constexpr uint8_t bothLedMask = (redLedMask | greenLedMask);
+constexpr uint8_t buttonMask = (1u << PD2);
+constexpr uint16_t confirmDelayMs = 20;
 
-/* Bouton sur PD2 — sans pull-up interne */
-constexpr uint8_t ButtonMask = (1u << PD2);
+static inline void ledOff() { PORTA &= ~bothLedMask; }
+static inline void ledRed() { PORTA = (PORTA & ~bothLedMask) | redLedMask; }
+static inline void ledGreen() { PORTA = (PORTA & ~bothLedMask) | greenLedMask; }
 
-/* Anti-rebond */
-constexpr uint16_t ConfirmDelayMs = 20;
-
-/* ===================== Helpers LED ===================== */
-static inline void ledOff() { PORTA &= ~BothLedMask; }
-static inline void ledRed() { PORTA = (PORTA & ~BothLedMask) | RedLedMask; }
-static inline void ledGreen() { PORTA = (PORTA & ~BothLedMask) | GreenLedMask; }
-
-/* Ambre = alterner très vite entre rouge et vert */
 static inline void ledAmber()
 {
     for (uint8_t i = 0; i < 10; i++)
     {
-        PORTA = RedLedMask; // rouge
+        PORTA = redLedMask;
         _delay_ms(8);
-        PORTA = GreenLedMask; // vert
+        PORTA = greenLedMask;
         _delay_ms(10);
     }
 }
 
-/* ===================== Init ===================== */
-static inline void initIO()
+static inline void initIo()
 {
-    DDRA |= BothLedMask; // sorties DEL
-    DDRD &= ~ButtonMask; // entrée bouton
-    // pas de pull-up
+    DDRA |= bothLedMask;
+    DDRD &= ~buttonMask;
     ledOff();
 }
 
-/* ===================== États PB2 ===================== */
 enum class P2State
 {
-    INIT_Red,
-    WaitRelease_ShowAmber, // ambre tant que pressé
+    InitRed,
+    WaitReleaseShowAmber,
     ShowGreen,
-    WaitRelease_ShowRed, // rouge tant que pressé
+    WaitReleaseShowRed,
     ShowOff,
-    WaitRelease_ShowGreen, // vert tant que pressé
-    ReturnToInit_OnRelease
+    WaitReleaseShowGreen,
+    ReturnToInitOnRelease
 };
 
 int main()
 {
-    initIO();
-    P2State state = P2State::INIT_Red;
+    initIo();
+    P2State state = P2State::InitRed;
 
-    while (1)
+    while (true)
     {
-        // essaie avec !=0 ou ==0 selon ton câblage
-        bool pressedNow = ((PIND & ButtonMask) != 0);
+        bool pressedNow = ((PIND & buttonMask) != 0);
 
         switch (state)
         {
-
-        case P2State::INIT_Red:
+        case P2State::InitRed:
             ledRed();
             if (pressedNow)
             {
-                _delay_ms(ConfirmDelayMs);
-                if ((PIND & ButtonMask) != 0)
+                _delay_ms(confirmDelayMs);
+                if ((PIND & buttonMask) != 0)
                 {
-                    state = P2State::WaitRelease_ShowAmber;
+                    state = P2State::WaitReleaseShowAmber;
                 }
             }
             break;
 
-        case P2State::WaitRelease_ShowAmber:
+        case P2State::WaitReleaseShowAmber:
             if (pressedNow)
             {
-                ledAmber(); // boucle rapide rouge/vert
+                ledAmber();
             }
             else
             {
-                _delay_ms(ConfirmDelayMs);
-                if ((PIND & ButtonMask) == 0)
+                _delay_ms(confirmDelayMs);
+                if ((PIND & buttonMask) == 0)
                 {
                     state = P2State::ShowGreen;
                 }
@@ -160,23 +146,23 @@ int main()
             ledGreen();
             if (pressedNow)
             {
-                _delay_ms(ConfirmDelayMs);
-                if ((PIND & ButtonMask) != 0)
+                _delay_ms(confirmDelayMs);
+                if ((PIND & buttonMask) != 0)
                 {
-                    state = P2State::WaitRelease_ShowRed;
+                    state = P2State::WaitReleaseShowRed;
                 }
             }
             break;
 
-        case P2State::WaitRelease_ShowRed:
+        case P2State::WaitReleaseShowRed:
             if (pressedNow)
             {
                 ledRed();
             }
             else
             {
-                _delay_ms(ConfirmDelayMs);
-                if ((PIND & ButtonMask) == 0)
+                _delay_ms(confirmDelayMs);
+                if ((PIND & buttonMask) == 0)
                 {
                     state = P2State::ShowOff;
                 }
@@ -187,35 +173,33 @@ int main()
             ledOff();
             if (pressedNow)
             {
-                _delay_ms(ConfirmDelayMs);
-                if ((PIND & ButtonMask) != 0)
+                _delay_ms(confirmDelayMs);
+                if ((PIND & buttonMask) != 0)
                 {
-                    state = P2State::WaitRelease_ShowGreen;
+                    state = P2State::WaitReleaseShowGreen;
                 }
             }
             break;
 
-        case P2State::WaitRelease_ShowGreen:
+        case P2State::WaitReleaseShowGreen:
             if (pressedNow)
             {
                 ledGreen();
             }
             else
             {
-                _delay_ms(ConfirmDelayMs);
-                if ((PIND & ButtonMask) == 0)
+                _delay_ms(confirmDelayMs);
+                if ((PIND & buttonMask) == 0)
                 {
-                    state = P2State::ReturnToInit_OnRelease;
+                    state = P2State::ReturnToInitOnRelease;
                 }
             }
             break;
 
-        case P2State::ReturnToInit_OnRelease:
+        case P2State::ReturnToInitOnRelease:
             ledRed();
-            state = P2State::INIT_Red;
+            state = P2State::InitRed;
             break;
         }
-
-        _delay_ms(1); // mini souffle
     }
 }
