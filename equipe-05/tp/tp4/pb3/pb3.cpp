@@ -48,7 +48,7 @@ void partirMinuterieMs (uint16_t duree) {
   TCCR1B = 1 << WGM12 | 1 << CS10 | 1 << CS12;
   TCCR1C = 0;
 
-  // autoriser l'interruption lorsque comparaison entre TCNT3 et OCR3A
+  // autoriser l'interruption lorsque comparaison entre TCNT1 et OCR1A
   TIMSK1 = 1 << OCIE1A;
 }
 
