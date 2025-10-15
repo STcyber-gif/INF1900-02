@@ -1,19 +1,3 @@
-########       AVR Project Makefile       ########
-#####                                        #####
-#####      Makefile produit et ecrit par     #####
-#####   Simon Barrette & Jerome Collin pour  #####
-#####           INF1900 - 2016               #####
-#####                                        #####
-#####         Inspire de Pat Deegan -        #####
-#####  Psychogenic Inc (www.psychogenic.com) #####
-##################################################
-
-# Ce Makefile vous permet de compiler des projets
-# pour les microcontroleurs Atmel AVR sur 
-# Linux ou Unix, en utilisant l'outil AVR-GCC. 
-# Ce Makefile supporte C & C++
-
-
 #####      Details specifique a la cible       #####
 #####  Vous devez les adapter a votre projet   #####
 
@@ -23,13 +7,13 @@ MCU=atmega324pa
 
 # Nom de votre projet
 # (utilisez un seul mot, exemple: 'monprojet')
-PROJECTNAME=04-tp6
+PROJECTNAME=04-tp6-pb2
 
 # Fichiers sources
 # Utilisez le suffixe .cpp pour les fichiers C++
 # Listez tous les fichiers a compiler, separes par
 # un espace. exemple: 'tp1.c tp2.cpp':
-PRJSRC = main.cpp
+PRJSRC = pb2.cpp can.cpp
 
 # Inclusions additionnels (ex: -I/path/to/mydir)
 INC=
