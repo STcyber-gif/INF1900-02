@@ -18,9 +18,6 @@
 
 /*
  * Classe Timer0:
- *   Le constructeur initialise le convertisseur.
- *   Une lecture enclanche une conversion et le resultat
- *   est retourne sur 16 bits.
  *
  */
 
@@ -30,9 +27,11 @@ public:
 
    enum class CompareMatchOutputMode {NORMAL, TOGGLE, CLEAR, SET};
 
-   enum class WaveformGenerationMode {NORMAL, CTC, PHASE_CORRECT_PWM, FAST_PWM, PHASE_CORRECT_PWM_OCRA, FAST_PWM_OCRA};
+   enum class WaveformGenerationMode {NORMAL  , PHASE_CORRECT_PWM     , CTC          ,
+                                      FAST_PWM, PHASE_CORRECT_PWM_OCRA, FAST_PWM_OCRA};
    
-   enum class ClockSelect {NO_CLOCK_SOURCE, PRESCALER_0, PRESCALER_8, PRESCALER_64, PRESCALER_256, PRESCALER_1024, CLOCK_ON_FALLING_EDGE, CLOCK_ON_RISING_EDGE};
+   enum class ClockSelect {NO_CLOCK_SOURCE, PRESCALER_0   , PRESCALER_8                , PRESCALER_64              ,
+                           PRESCALER_256  , PRESCALER_1024, EXTERNAL_CLOCK_FALLING_EDGE, EXTERNAL_CLOCK_RISING_EDGE};
 
    Timer0();
    ~Timer0();
@@ -57,6 +56,8 @@ public:
 
    enableInterruptOverflow();
    disableInterruptOverflow();
+
+   reset();
 
 private:
    // Donnees membres - aucun

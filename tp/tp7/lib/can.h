@@ -19,19 +19,19 @@
 #include <avr/io.h> 
 
 /*
- * Classe can:
+ * Classe Can:
  *   Le constructeur initialise le convertisseur.
  *   Une lecture enclanche une conversion et le resultat
  *   est retourne sur 16 bits.
  *
  */
 
-class can
+class Can
 {
 public:
 
-   can();
-   ~can();
+   Can();
+   ~Can();
 
    // retourne la valeur numerique correspondant a la valeur
    // analogique sur le port A.  pos doit etre entre 0 et 7

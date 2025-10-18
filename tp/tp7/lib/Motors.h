@@ -15,6 +15,7 @@
 #define MOTOR_H
 
 #include <avr/io.h>
+#include "Timer0.h"
 
 /*
  * Classe Motors:
@@ -38,5 +39,6 @@ public:
     setLeftMotorSpeed(uint8_t speed);
 
 private:
-   // Donnees membres - aucun
+   // Donnees membres
+   Timer0 timer_;
 }

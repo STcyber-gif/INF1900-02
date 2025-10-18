@@ -27,7 +27,7 @@ public:
 
    enum class CompareMatchOutputMode {NORMAL, TOGGLE, CLEAR, SET};
 
-   enum class WaveformGenerationMode {NORMAL, CTC, PHASE_CORRECT_PWM, FAST_PWM, PHASE_CORRECT_PWM_OCRA, FAST_PWM_OCRA};
+   enum class WaveformGenerationMode {NORMAL, PHASE_CORRECT_PWM, CTC, FAST_PWM, PHASE_CORRECT_PWM_OCRA, FAST_PWM_OCRA};
    
    enum class ClockSelect {NO_CLOCK_SOURCE, PRESCALER_0, PRESCALER_8, PRESCALER_32, PRESCALER_64, PRESCALER_128, PRESCALER_256, PRESCALER_1024};
 
@@ -57,6 +57,8 @@ public:
 
    enableExternalClockInput();
    disableExternalClockInput();
+
+   reset();
 
 private:
    // Donnees membres - aucun
