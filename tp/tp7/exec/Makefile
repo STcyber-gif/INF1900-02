@@ -23,19 +23,19 @@ MCU=atmega324pa
 
 # Nom de votre projet
 # (utilisez un seul mot, exemple: 'monprojet')
-PROJECTNAME=tp6_pb2
+PROJECTNAME=test_robot
 
 # Fichiers sources
 # Utilisez le suffixe .cpp pour les fichiers C++
 # Listez tous les fichiers a compiler, separes par
 # un espace. exemple: 'tp1.c tp2.cpp':
-PRJSRC= pb2.cpp can.cpp
+PRJSRC= main.cpp
 
 # Inclusions additionnels (ex: -I/path/to/mydir)
-INC=
+INC= -I../lib
 
 # Libraires a lier (ex: -lmylib)
-LIBS=
+LIBS= -lrobot
 
 # Niveau d'optimization
 # Utilisez s (size opt), 1, 2, 3 ou 0 (off)
@@ -78,6 +78,7 @@ HEXFORMAT=ihex
 # Flags pour le compilateur en C
 CFLAGS=-I. -I/usr/include/simavr -MMD $(INC) -g -mmcu=$(MCU) -O$(OPTLEVEL) \
 	-std=c++14 -fshort-enums -funsigned-bitfields -funsigned-char -Wall
+	-DF_CPU=8000000UL
 
 # Flag supplémentaire pour retirer le bogue de "array subscript 0 is outside 
 # array bounds" sur avr-gcc v12
@@ -90,7 +91,7 @@ endif
 CXXFLAGS=-fno-exceptions
 
 # Linker pour lier les librairies utilisees
-LDFLAGS=-Wl,-Map,$(TRG).map -mmcu=$(MCU)
+LDFLAGS=-Wl,-Map,$(TRG).map -mmcu=$(MCU) -L../lib
 
 
 
@@ -129,11 +130,18 @@ OBJDEPS=$(CFILES:.c=.o) \
 # En plus de la commande make qui permet de compiler
 # votre projet, vous pouvez utilisez les commandes
 # make all, make install et make clean
-.PHONY: all install clean
+.PHONY: all install debug clean
 
 # Make all permet simplement de compiler le projet
 #
 all: $(TRG) $(HEXROMTRG)
+
+# Make debug permet de compiler et d'installer le projet
+# avec le flag DEBUG définit, activant certaines fonctionnalités
+# lentes, mais utiles au déverminage du programme.
+#
+debug: CFLAGS += -DDEBUG
+debug: install
 
 # Implementation de la cible
 $(TRG): $(OBJDEPS)
